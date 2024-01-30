@@ -1,10 +1,11 @@
 import { EventEmitter } from 'events';
 
 class PomodoroTimer extends EventEmitter {
-  constructor(workDuration, breakDuration) {
+  constructor(workDuration, breakDuration, autoStart = false) {
     super();
     this.workDuration = workDuration;
     this.breakDuration = breakDuration;
+    this.autoStart = autoStart;
     this.timerId = null;
     this.timeLeft = workDuration;
     this.isWork = true;
@@ -20,10 +21,10 @@ class PomodoroTimer extends EventEmitter {
 
       if (this.timeLeft === 0) {
         this.stop();
+        this.emit('completed', this.isWork);
         this.isWork = !this.isWork;
         this.timeLeft = this.isWork ? this.workDuration : this.breakDuration;
         this.session++; // Increment the session
-        this.emit('completed', this.isWork);
       }
     }, 1000);
   }
@@ -36,6 +37,12 @@ class PomodoroTimer extends EventEmitter {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  startBreak() {
+    this.isWork = false;
+    this.timeLeft = this.breakDuration;
+    this.start();
   }
 }
 

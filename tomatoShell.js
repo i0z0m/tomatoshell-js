@@ -15,14 +15,19 @@ const HELP = `
 -h, shows this
 `;
 
-const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions) => {
+const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, autoStartBreak) => {
   let workMinutes = defaultWorkMinutes;
   let breakMinutes = defaultBreakMinutes;
   let sessions = defaultSessions;
+  let autoStart = autoStartBreak;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     switch (arg) {
+      case '-a':
+        autoStart = args[i + 1] === 'true';
+        i++;
+        break;
       case '-r':
         // Implement this part to read the log and calculate total hours spent
         console.log('Total hours spent focused: ...');
@@ -54,18 +59,18 @@ const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultS
     }
   }
 
-  return { workMinutes, breakMinutes, sessions };
+  return { workMinutes, breakMinutes, sessions, autoStart };
 };
 
-const main = async (defaultWorkMinutes = 25, defaultBreakMinutes = 5, defaultSessions = 3) => {
+const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSessions = 3, autoStartBreak = false) => {
   const args = process.argv.slice(2);
-  const { workMinutes, breakMinutes, sessions } = handleArguments(args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions);
+  const { workMinutes, breakMinutes, sessions, autoStart } = handleArguments(args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, autoStartBreak);
 
   // Convert time and delay from minutes to seconds
   const workSeconds = workMinutes * 60;
   const breakSeconds = breakMinutes * 60;
 
-  const timer = new PomodoroTimer(workSeconds, breakSeconds, sessions);
+  const timer = new PomodoroTimer(workSeconds, breakSeconds, sessions, autoStart);
 
   timer.on('tick', (time) => {
     console.clear();
@@ -81,6 +86,16 @@ const main = async (defaultWorkMinutes = 25, defaultBreakMinutes = 5, defaultSes
         console.log('\nAll sessions completed. Take a longer break!');
         rl.close();
         process.exit(0);
+      }
+    } else {
+      console.clear();
+      if (autoStart) {
+        timer.startBreak();
+      } else {
+        rl.question('Press any key to start the break...', (answer) => {
+          console.clear();
+          timer.startBreak();
+        });
       }
     }
   });
