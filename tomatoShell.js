@@ -19,7 +19,7 @@ const main = async () => {
   timer.on('tick', (time) => {
     console.clear();
     const emoji = timer.isWork ? ' ' : '⏳';
-    const msg = timer.isWork ? `Time left of session ${timer.session}/${sessions}:` : '🍅Time left of break:🍅';
+    const msg = timer.isWork ? `Time left of session ${timer.session}/${sessions}:` : 'Time left of break:';
     console.log(`${msg}`);
     console.log(`${emoji} ${time}  🍅`);
   });
@@ -27,7 +27,7 @@ const main = async () => {
   timer.on('completed', (isWork) => {
     console.clear();
     if (isWork) {
-      console.log(`Session ${timer.session} completed!`);
+      console.log(`Session ${timer.session}/${sessions} finished`);
       timer.session++; // Increment the session only when the work timer ends
       if (timer.session > sessions) {
         console.log('All sessions completed! Take a long break!');
@@ -48,10 +48,11 @@ const main = async () => {
       }
     } else {
       if (timer.session > sessions) {
-        console.log('Long break completed! Exiting the app...');
+        console.log('Congratulations！you have completed 1 pomodoro!');
+        console.log('This app only supports 1 pomodoro yet. Exiting the app...');
         process.exit(0);
       } else {
-        console.log('Break completed!');
+        console.log('Break finished');
         timer.isWork = true; // Switch to work
         timer.timeLeft = timer.workDuration; // Set the time for the work
         if (timer.autoStartWork) {
