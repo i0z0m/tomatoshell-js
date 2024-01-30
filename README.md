@@ -20,13 +20,13 @@ $ cd tomatoshell-js
 Run the program:
 
 ```bash
-$ node index.js
+$ node tomatoShell-js
 ```
 
 Or if you are using Bun:
 
 ```bash
-$ bun index.js
+$ bun tomatoShell.js
 ```
 
 That's it. Enjoy your productive time with tomatoshell-js 🍅!
