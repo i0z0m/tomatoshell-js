@@ -117,21 +117,31 @@ const main = async (
     if (isWork) {
       console.log(`Session ${timer.session} completed!`);
       timer.session++; // Increment the session only when the work timer ends
-      timer.timeLeft = timer.breakDuration;
-      timer.isWork = false;
-      if (timer.autoStartBreak) {
+      if (timer.session > sessions) {
+        console.log('All sessions completed! Take a long break!');
+        timer.timeLeft = timer.longBreakDuration;
+        timer.isWork = false;
         timer.start();
       } else {
-        rl.question('Press any key to start the break...', (answer) => {
-          console.clear();
+        timer.timeLeft = timer.breakDuration;
+        timer.isWork = false;
+        if (timer.autoStartBreak) {
           timer.start();
-        });
+        } else {
+          rl.question('Press any key to start the break...', (answer) => {
+            console.clear();
+            timer.start();
+          });
+        }
       }
     } else {
-      console.log('Break completed!');
-      timer.isWork = true; // Switch to work
-      timer.timeLeft = timer.workDuration; // Set the time for the work
-      if (timer.session <= sessions) {
+      if (timer.session > sessions) {
+        console.log('Long break completed! Exiting the app...');
+        process.exit(0);
+      } else {
+        console.log('Break completed!');
+        timer.isWork = true; // Switch to work
+        timer.timeLeft = timer.workDuration; // Set the time for the work
         if (timer.autoStartWork) {
           timer.start();
         } else {
@@ -140,9 +150,6 @@ const main = async (
             timer.start();
           });
         }
-      } else {
-        console.log('All sessions completed!');
-        process.exit(0);
       }
     }
   });
