@@ -22,7 +22,8 @@ let SESSIONS = 3;
 let FIGLET = false;
 
 const displayCountdown = (start, sessionNumber) => {
-  const msg = sessionNumber === -1 ? '🍅Time left of break:🍅' : `🍅Time left of session ${sessionNumber}/${SESSIONS}:🍅`;
+  const emoji = sessionNumber === -1 ? '⏳' : '⬅️';
+  const msg = sessionNumber === -1 ? `${emoji}Time left of break:` : `${emoji}Time left of session ${sessionNumber}/${SESSIONS}:`;
   const interval = setInterval(() => {
     const timeLeft = Math.max(0, start - Math.floor(Date.now() / 1000));
     const minutes = Math.floor(timeLeft / 60);
@@ -84,9 +85,10 @@ const main = async () => {
 
   timer.on('tick', (time) => {
     console.clear();
+    const emoji = timer.isWork ? '⬅️' : '⏳';
     const msg = timer.isWork ? `Time left of session ${timer.session}/${SESSIONS}:` : 'Time left of break:';
     console.log(`${msg}`);
-    console.log(`⏳ ${time}  🍅`);
+    console.log(`${emoji} ${time} 🍅`);
   });
 
   timer.on('completed', (isWork) => {
