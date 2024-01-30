@@ -22,7 +22,7 @@ const handleArguments = (
   defaultLongBreakMinutes,
   defaultSessions,
   defaultAutoStartBreak,
-  defaultAutoStartWork
+  defaultAutoStartWork,
 ) => {
   let workMinutes = defaultWorkMinutes;
   let breakMinutes = defaultBreakMinutes;
@@ -76,7 +76,7 @@ const handleArguments = (
     }
   }
 
-  return { workMinutes, breakMinutes, sessions, autoStartBreak };
+  return { workMinutes, breakMinutes, sessions, autoStartBreak, autoStartWork };
 };
 
 const main = async (
@@ -85,7 +85,7 @@ const main = async (
   defaultLongBreakMinutes = 2,
   defaultSessions = 2,
   defaultAutoStartBreak = true,
-  defaultAutoStartWork = true
+  defaultAutoStartWork = true,
 ) => {
   const args = process.argv.slice(2);
   const { workMinutes, breakMinutes, longBreakMinutes, sessions, autoStartBreak, autoStartWork } = handleArguments(
@@ -95,14 +95,14 @@ const main = async (
     defaultLongBreakMinutes,
     defaultSessions,
     defaultAutoStartBreak,
-    defaultAutoStartWork
+    defaultAutoStartWork,
   );
 
-  const workSeconds = workMinutes * 60;
-  const breakSeconds = breakMinutes * 60;
-  const longBreakSeconds = longBreakMinutes * 60;
+  const workSeconds = workMinutes * 6;
+  const breakSeconds = breakMinutes * 6;
+  const longBreakSeconds = longBreakMinutes * 6;
 
-  const timer = new PomodoroTimer(workSeconds, breakSeconds, longBreakSeconds, sessions, autoStartBreak, autoStartWork);
+  const timer = new PomodoroTimer(workSeconds, breakSeconds, longBreakSeconds, sessions, autoStartBreak, autoStartWork );
 
   timer.on('tick', (time) => {
     console.clear();
@@ -116,9 +116,9 @@ const main = async (
     console.clear();
     if (isWork) {
       console.log('Session completed!');
+      timer.timeLeft = timer.session > sessions ? timer.longBreakDuration : timer.breakDuration; // Set the time for the break before incrementing the session
       timer.session++; // Increment the session only when the work timer ends
       timer.isWork = false;
-      timer.timeLeft = timer.session > sessions ? timer.longBreakDuration : timer.breakDuration; // Set the time for the break
       if (timer.autoStartBreak) {
         timer.start();
       } else {
