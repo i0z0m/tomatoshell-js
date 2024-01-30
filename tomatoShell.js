@@ -15,17 +15,17 @@ const HELP = `
 -h, shows this
 `;
 
-const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, autoStartBreak) => {
+const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, autoStartBreakBreak) => {
   let workMinutes = defaultWorkMinutes;
   let breakMinutes = defaultBreakMinutes;
   let sessions = defaultSessions;
-  let autoStart = autoStartBreak;
+  let autoStartBreak = autoStartBreakBreak;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     switch (arg) {
       case '-a':
-        autoStart = args[i + 1] === 'true';
+        autoStartBreak = args[i + 1] === 'true';
         i++;
         break;
       case '-r':
@@ -59,18 +59,18 @@ const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultS
     }
   }
 
-  return { workMinutes, breakMinutes, sessions, autoStart };
+  return { workMinutes, breakMinutes, sessions, autoStartBreak };
 };
 
-const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSessions = 3, autoStartBreak = false) => {
+const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSessions = 3, autoStartBreakBreak = false) => {
   const args = process.argv.slice(2);
-  const { workMinutes, breakMinutes, sessions, autoStart } = handleArguments(args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, autoStartBreak);
+  const { workMinutes, breakMinutes, sessions, autoStartBreak } = handleArguments(args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, autoStartBreakBreak);
 
   // Convert time and delay from minutes to seconds
   const workSeconds = workMinutes * 60;
   const breakSeconds = breakMinutes * 60;
 
-  const timer = new PomodoroTimer(workSeconds, breakSeconds, sessions, autoStart);
+  const timer = new PomodoroTimer(workSeconds, breakSeconds, sessions, autoStartBreak);
 
   timer.on('tick', (time) => {
     console.clear();
@@ -89,7 +89,7 @@ const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSess
       }
     } else {
       console.clear();
-      if (autoStart) {
+      if (autoStartBreak) {
         timer.startBreak();
       } else {
         rl.question('Press any key to start the break...', (answer) => {
