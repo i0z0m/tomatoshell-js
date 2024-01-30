@@ -15,9 +15,18 @@ const HELP = `
 -h, shows this
 `;
 
-const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, defaultAutoStartBreak, defaultAutoStartWork) => {
+const handleArguments = (
+  args,
+  defaultWorkMinutes,
+  defaultBreakMinutes,
+  defaultLongBreakMinutes,
+  defaultSessions,
+  defaultAutoStartBreak,
+  defaultAutoStartWork
+) => {
   let workMinutes = defaultWorkMinutes;
   let breakMinutes = defaultBreakMinutes;
+  let longBreakMinutes = defaultLongBreakMinutes;
   let sessions = defaultSessions;
   let autoStartBreak = defaultAutoStartBreak;
   let autoStartWork = defaultAutoStartWork;
@@ -46,6 +55,10 @@ const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultS
         breakMinutes = parseInt(args[i + 1], 10);
         i++;
         break;
+      case '-l':
+        longBreakMinutes = parseInt(args[i + 1], 10);
+        i++;
+        break;
       case '-n':
         sessions = parseInt(args[i + 1], 10);
         i++;
@@ -60,22 +73,36 @@ const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultS
       default:
         console.error(`Unknown option ${arg}`);
         process.exit(1);
-
     }
   }
 
   return { workMinutes, breakMinutes, sessions, autoStartBreak };
 };
 
-const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSessions = 3, defaultAutoStartBreak = false, defaultAutoStartWork = false) => {
+const main = async (
+  defaultWorkMinutes = 1,
+  defaultBreakMinutes = 1,
+  defaultLongBreakMinutes = 2,
+  defaultSessions = 2,
+  defaultAutoStartBreak = true,
+  defaultAutoStartWork = true
+) => {
   const args = process.argv.slice(2);
-  const { workMinutes, breakMinutes, sessions, autoStartBreak, autoStartWork } = handleArguments(args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, defaultAutoStartBreak, defaultAutoStartWork);
+  const { workMinutes, breakMinutes, longBreakMinutes, sessions, autoStartBreak, autoStartWork } = handleArguments(
+    args,
+    defaultWorkMinutes,
+    defaultBreakMinutes,
+    defaultLongBreakMinutes,
+    defaultSessions,
+    defaultAutoStartBreak,
+    defaultAutoStartWork
+  );
 
-  // Convert time and delay from minutes to seconds
   const workSeconds = workMinutes * 60;
   const breakSeconds = breakMinutes * 60;
+  const longBreakSeconds = longBreakMinutes * 60;
 
-  const timer = new PomodoroTimer(workSeconds, breakSeconds, sessions, autoStartBreak);
+  const timer = new PomodoroTimer(workSeconds, breakSeconds, longBreakSeconds, sessions, autoStartBreak, autoStartWork);
 
   timer.on('tick', (time) => {
     console.clear();
@@ -89,23 +116,28 @@ const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSess
     console.clear();
     if (isWork) {
       console.log('Session completed!');
-      if (autoStartBreak) {
-        timer.startBreak();
+      timer.session++; // Increment the session only when the work timer ends
+      timer.isWork = false;
+      timer.timeLeft = timer.session > sessions ? timer.longBreakDuration : timer.breakDuration; // Set the time for the break
+      if (timer.autoStartBreak) {
+        timer.start();
       } else {
         rl.question('Press any key to start the break...', (answer) => {
           console.clear();
-          timer.startBreak();
+          timer.start();
         });
       }
     } else {
       console.log('Break completed!');
+      timer.isWork = true; // Switch to work
+      timer.timeLeft = timer.workDuration; // Set the time for the work
       if (timer.session <= sessions) {
-        if (autoStartWork) {
-          timer.startWork();
+        if (timer.autoStartWork) {
+          timer.start();
         } else {
           rl.question('Press any key to start the next session...', (answer) => {
             console.clear();
-            timer.startWork();
+            timer.start();
           });
         }
       } else {
