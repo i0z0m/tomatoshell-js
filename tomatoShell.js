@@ -22,7 +22,7 @@ const handleArguments = (
   defaultLongBreakMinutes,
   defaultSessions,
   defaultAutoStartBreak,
-  defaultAutoStartWork,
+  defaultAutoStartWork
 ) => {
   let workMinutes = defaultWorkMinutes;
   let breakMinutes = defaultBreakMinutes;
@@ -76,7 +76,7 @@ const handleArguments = (
     }
   }
 
-  return { workMinutes, breakMinutes, sessions, autoStartBreak, autoStartWork };
+  return { workMinutes, breakMinutes, longBreakMinutes, sessions, autoStartBreak, autoStartWork };
 };
 
 const main = async (
@@ -85,7 +85,7 @@ const main = async (
   defaultLongBreakMinutes = 2,
   defaultSessions = 2,
   defaultAutoStartBreak = true,
-  defaultAutoStartWork = true,
+  defaultAutoStartWork = true
 ) => {
   const args = process.argv.slice(2);
   const { workMinutes, breakMinutes, longBreakMinutes, sessions, autoStartBreak, autoStartWork } = handleArguments(
@@ -95,14 +95,14 @@ const main = async (
     defaultLongBreakMinutes,
     defaultSessions,
     defaultAutoStartBreak,
-    defaultAutoStartWork,
+    defaultAutoStartWork
   );
 
   const workSeconds = workMinutes * 6;
   const breakSeconds = breakMinutes * 6;
   const longBreakSeconds = longBreakMinutes * 6;
 
-  const timer = new PomodoroTimer(workSeconds, breakSeconds, longBreakSeconds, sessions, autoStartBreak, autoStartWork );
+  const timer = new PomodoroTimer(workSeconds, breakSeconds, longBreakSeconds, sessions, autoStartBreak, autoStartWork);
 
   timer.on('tick', (time) => {
     console.clear();
@@ -115,9 +115,9 @@ const main = async (
   timer.on('completed', (isWork) => {
     console.clear();
     if (isWork) {
-      console.log('Session completed!');
-      timer.timeLeft = timer.session > sessions ? timer.longBreakDuration : timer.breakDuration; // Set the time for the break before incrementing the session
+      console.log(`Session ${timer.session} completed!`);
       timer.session++; // Increment the session only when the work timer ends
+      timer.timeLeft = timer.breakDuration;
       timer.isWork = false;
       if (timer.autoStartBreak) {
         timer.start();
@@ -142,7 +142,7 @@ const main = async (
         }
       } else {
         console.log('All sessions completed!');
-        process.exit();
+        process.exit(0);
       }
     }
   });
@@ -153,3 +153,4 @@ const main = async (
 main();
 
 export default main;
+
