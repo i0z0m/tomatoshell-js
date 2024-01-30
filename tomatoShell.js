@@ -15,17 +15,22 @@ const HELP = `
 -h, shows this
 `;
 
-const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, autoStartBreakBreak) => {
+const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, defaultAutoStartBreak, defaultAutoStartWork) => {
   let workMinutes = defaultWorkMinutes;
   let breakMinutes = defaultBreakMinutes;
   let sessions = defaultSessions;
-  let autoStartBreak = autoStartBreakBreak;
+  let autoStartBreak = defaultAutoStartBreak;
+  let autoStartWork = defaultAutoStartWork;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     switch (arg) {
       case '-a':
         autoStartBreak = args[i + 1] === 'true';
+        i++;
+        break;
+      case '-w':
+        autoStartWork = args[i + 1] === 'true';
         i++;
         break;
       case '-r':
@@ -62,9 +67,9 @@ const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultS
   return { workMinutes, breakMinutes, sessions, autoStartBreak };
 };
 
-const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSessions = 3, autoStartBreakBreak = false) => {
+const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSessions = 3, defaultAutoStartBreak = false, defaultAutoStartWork = false) => {
   const args = process.argv.slice(2);
-  const { workMinutes, breakMinutes, sessions, autoStartBreak } = handleArguments(args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, autoStartBreakBreak);
+  const { workMinutes, breakMinutes, sessions, autoStartBreak, autoStartWork } = handleArguments(args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions, defaultAutoStartBreak, defaultAutoStartWork);
 
   // Convert time and delay from minutes to seconds
   const workSeconds = workMinutes * 60;
@@ -81,14 +86,9 @@ const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSess
   });
 
   timer.on('completed', (isWork) => {
-    if (!isWork) {
-      if (timer.session > sessions) {
-        console.log('\nAll sessions completed. Take a longer break!');
-        rl.close();
-        process.exit(0);
-      }
-    } else {
-      console.clear();
+    console.clear();
+    if (isWork) {
+      console.log('Session completed!');
       if (autoStartBreak) {
         timer.startBreak();
       } else {
@@ -96,6 +96,21 @@ const main = async (defaultWorkMinutes = 1, defaultBreakMinutes = 1, defaultSess
           console.clear();
           timer.startBreak();
         });
+      }
+    } else {
+      console.log('Break completed!');
+      if (timer.session <= sessions) {
+        if (autoStartWork) {
+          timer.startWork();
+        } else {
+          rl.question('Press any key to start the next session...', (answer) => {
+            console.clear();
+            timer.startWork();
+          });
+        }
+      } else {
+        console.log('All sessions completed!');
+        process.exit();
       }
     }
   });

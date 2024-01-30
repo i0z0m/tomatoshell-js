@@ -1,11 +1,12 @@
 import { EventEmitter } from 'events';
 
 class PomodoroTimer extends EventEmitter {
-  constructor(workDuration, breakDuration, autoStartBreak = false) {
+  constructor(workDuration, breakDuration, autoStartBreak = false, autoStartWork = false) {
     super();
     this.workDuration = workDuration;
     this.breakDuration = breakDuration;
     this.autoStartBreak = autoStartBreak;
+    this.autoStartWork = autoStartWork;
     this.timerId = null;
     this.timeLeft = workDuration;
     this.isWork = true;
@@ -42,6 +43,12 @@ class PomodoroTimer extends EventEmitter {
   startBreak() {
     this.isWork = false;
     this.timeLeft = this.breakDuration;
+    this.start();
+  }
+
+  startWork() {
+    this.isWork = true;
+    this.timeLeft = this.workDuration;
     this.start();
   }
 }
