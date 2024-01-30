@@ -6,110 +6,22 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const HELP = `
--r, prints total hours spent using tomatoshell and exits
--t, time for every session in minutes [default:25 minutes]
--d, delay between sessions in minutes [default:5 minutes]
--n, total sessions [default:3]
--f, figlet on
--h, shows this
-`;
-
-const handleArguments = (
-  args,
-  defaultWorkMinutes,
-  defaultBreakMinutes,
-  defaultLongBreakMinutes,
-  defaultSessions,
-  defaultAutoStartBreak,
-  defaultAutoStartWork
-) => {
-  let workMinutes = defaultWorkMinutes;
-  let breakMinutes = defaultBreakMinutes;
-  let longBreakMinutes = defaultLongBreakMinutes;
-  let sessions = defaultSessions;
-  let autoStartBreak = defaultAutoStartBreak;
-  let autoStartWork = defaultAutoStartWork;
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    switch (arg) {
-      case '-a':
-        autoStartBreak = args[i + 1] === 'true';
-        i++;
-        break;
-      case '-w':
-        autoStartWork = args[i + 1] === 'true';
-        i++;
-        break;
-      case '-r':
-        // Implement this part to read the log and calculate total hours spent
-        console.log('Total hours spent focused: ...');
-        process.exit(0);
-        break;
-      case '-t':
-        workMinutes = parseInt(args[i + 1], 10);
-        i++; // Skip the next argument since it's already used
-        break;
-      case '-d':
-        breakMinutes = parseInt(args[i + 1], 10);
-        i++;
-        break;
-      case '-l':
-        longBreakMinutes = parseInt(args[i + 1], 10);
-        i++;
-        break;
-      case '-n':
-        sessions = parseInt(args[i + 1], 10);
-        i++;
-        break;
-      case '-f':
-        FIGLET = true;
-        break;
-      case '-h':
-        console.log(HELP);
-        process.exit(0);
-        break;
-      default:
-        console.error(`Unknown option ${arg}`);
-        process.exit(1);
-    }
-  }
-
-  return { workMinutes, breakMinutes, longBreakMinutes, sessions, autoStartBreak, autoStartWork };
-};
-
-const main = async (
-  defaultWorkMinutes = 1,
-  defaultBreakMinutes = 1,
-  defaultLongBreakMinutes = 2,
-  defaultSessions = 2,
-  defaultAutoStartBreak = true,
-  defaultAutoStartWork = true
-) => {
-  const args = process.argv.slice(2);
-  const { workMinutes, breakMinutes, longBreakMinutes, sessions, autoStartBreak, autoStartWork } = handleArguments(
-    args,
-    defaultWorkMinutes,
-    defaultBreakMinutes,
-    defaultLongBreakMinutes,
-    defaultSessions,
-    defaultAutoStartBreak,
-    defaultAutoStartWork
-  );
-
-  const workSeconds = workMinutes * 6;
-  const breakSeconds = breakMinutes * 6;
-  const longBreakSeconds = longBreakMinutes * 6;
+const main = async () => {
+  const workSeconds = 25 * 60;
+  const breakSeconds = 5 * 60;
+  const longBreakSeconds = 20 * 60;
+  const sessions = 4;
+  const autoStartBreak = true;
+  const autoStartWork = true;
 
   const timer = new PomodoroTimer(workSeconds, breakSeconds, longBreakSeconds, sessions, autoStartBreak, autoStartWork);
 
   timer.on('tick', (time) => {
     console.clear();
-    const emoji = timer.isWork ? '⬅️' : '⏳';
-    const msg = timer.isWork ? `Time left of session ${timer.session}/${sessions}:` : 'Time left of break:';
+    const emoji = timer.isWork ? ' ' : '⏳';
+    const msg = timer.isWork ? `Time left of session ${timer.session}/${sessions}:` : '🍅Time left of break:🍅';
     console.log(`${msg}`);
-    console.log(`${emoji} ${time} 🍅`);
+    console.log(`${emoji} ${time}  🍅`);
   });
 
   timer.on('completed', (isWork) => {
