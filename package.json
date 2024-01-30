@@ -1,0 +1,12 @@
+{
+  "name": "tomatoshell",
+  "version": "0.0.1",
+  "description": "",
+  "main": "tomatoShell.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "i0z0m",
+  "license": "ISC"
+}

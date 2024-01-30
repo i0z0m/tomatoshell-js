@@ -1,7 +1,5 @@
-#!/usr/bin/env node
-
-const readline = require('readline');
-const PomodoroTimer = require('./pomodoroTimer');
+import readline from 'readline';
+import PomodoroTimer from './pomodoroTimer.js';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -34,7 +32,7 @@ const displayCountdown = (start, sessionNumber) => {
       clearInterval(interval);
       console.log(); // New line after countdown ends
     }
- }, 1000);
+  }, 1000);
 };
 
 const countdown = async (time, sessionNumber) => {

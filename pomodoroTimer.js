@@ -1,4 +1,4 @@
-const EventEmitter = require('events');
+import { EventEmitter } from 'events';
 
 class PomodoroTimer extends EventEmitter {
   constructor(workDuration, breakDuration) {
@@ -39,4 +39,4 @@ class PomodoroTimer extends EventEmitter {
   }
 }
 
-module.exports = PomodoroTimer;
+export default PomodoroTimer;
