@@ -2,7 +2,7 @@
 
 Copyright © 2024 KIYOSE imuzu under GPL v2.
 
-tomatoshell-js is a simple pomodoro timer program for Unix-like systems and Windows. It is written in JavaScript and can be run in Node.js or Bun runtime environments. In addition to being a pomodoro timer in the terminal, it tracks the time and number of sessions to a log that can be queried to see total time spent.
+tomatoshell-js is a simple pomodoro timer program for Unix-like systems and Windows. It is written in JavaScript and can be run in Node.js or Bun runtime environments. I rewrote the [tomatoshell](https://github.com/LytixDev/tomatoshell) from shell script to Javascript for learning purposes.
 
 ## Installation
 
