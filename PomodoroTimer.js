@@ -23,9 +23,11 @@ class PomodoroTimer extends EventEmitter {
       if (this.timeLeft === 0) {
         this.stop();
         this.emit('completed', this.isWork);
+        if (this.isWork) {
+          this.session++; // Increment the session only when the work timer ends
+        }
         this.isWork = !this.isWork;
         this.timeLeft = this.isWork ? this.workDuration : this.breakDuration;
-        this.session++; // Increment the session
       }
     }, 1000);
   }
