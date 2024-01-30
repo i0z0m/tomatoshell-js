@@ -58,26 +58,19 @@ const HELP = `
 let TIME = 25;
 let DELAY = 5;
 let SESSIONS = 3;
-let FIGLET = false;
 
 const displayCountdown = (start, sessionNumber) => {
   const emoji = sessionNumber === -1 ? '⏳' : '⬅️';
   const msg = sessionNumber === -1 ? `${emoji}Time left of break:` : `${emoji}Time left of session ${sessionNumber}/${SESSIONS}:`;
+  const timer = new PomodoroTimer(start, DELAY);
   const interval = setInterval(() => {
-    const timeLeft = Math.max(0, start - Math.floor(Date.now() / 1000));
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    process.stdout.write(`\r${msg} ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+    const timeLeft = Math.max(0, timer.timeLeft);
+    process.stdout.write(`\r${msg} ${timer.formatTime(timeLeft)}`);
     if (timeLeft === 0) {
       clearInterval(interval);
       console.log(); // New line after countdown ends
     }
   }, 1000);
-};
-
-const countdown = async (time, sessionNumber) => {
-  const start = Math.floor(Date.now() / 1000) + time;
-  displayCountdown(start, sessionNumber);
 };
 
 const main = async () => {
