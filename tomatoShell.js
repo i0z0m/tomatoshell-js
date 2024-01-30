@@ -15,14 +15,11 @@ const HELP = `
 -h, shows this
 `;
 
-// Defaults
-let TIME = 25;
-let DELAY = 5;
-let SESSIONS = 3;
+const handleArguments = (args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions) => {
+  let workMinutes = defaultWorkMinutes;
+  let breakMinutes = defaultBreakMinutes;
+  let sessions = defaultSessions;
 
-const main = async () => {
-  // Argument handling
-  const args = process.argv.slice(2);
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     switch (arg) {
@@ -32,15 +29,15 @@ const main = async () => {
         process.exit(0);
         break;
       case '-t':
-        TIME = parseInt(args[i + 1], 10);
+        workMinutes = parseInt(args[i + 1], 10);
         i++; // Skip the next argument since it's already used
         break;
       case '-d':
-        DELAY = parseInt(args[i + 1], 10);
+        breakMinutes = parseInt(args[i + 1], 10);
         i++;
         break;
       case '-n':
-        SESSIONS = parseInt(args[i + 1], 10);
+        sessions = parseInt(args[i + 1], 10);
         i++;
         break;
       case '-f':
@@ -53,26 +50,34 @@ const main = async () => {
       default:
         console.error(`Unknown option ${arg}`);
         process.exit(1);
+
     }
   }
 
-  // Convert time and delay from minutes to seconds
-  TIME = TIME * 60;
-  DELAY = DELAY * 60;
+  return { workMinutes, breakMinutes, sessions };
+};
 
-  const timer = new PomodoroTimer(TIME, DELAY);
+const main = async (defaultWorkMinutes = 25, defaultBreakMinutes = 5, defaultSessions = 3) => {
+  const args = process.argv.slice(2);
+  const { workMinutes, breakMinutes, sessions } = handleArguments(args, defaultWorkMinutes, defaultBreakMinutes, defaultSessions);
+
+  // Convert time and delay from minutes to seconds
+  const workSeconds = workMinutes * 60;
+  const breakSeconds = breakMinutes * 60;
+
+  const timer = new PomodoroTimer(workSeconds, breakSeconds, sessions);
 
   timer.on('tick', (time) => {
     console.clear();
     const emoji = timer.isWork ? '⬅️' : '⏳';
-    const msg = timer.isWork ? `Time left of session ${timer.session}/${SESSIONS}:` : 'Time left of break:';
+    const msg = timer.isWork ? `Time left of session ${timer.session}/${sessions}:` : 'Time left of break:';
     console.log(`${msg}`);
     console.log(`${emoji} ${time} 🍅`);
   });
 
   timer.on('completed', (isWork) => {
     if (!isWork) {
-      if (timer.session > SESSIONS) {
+      if (timer.session > sessions) {
         console.log('\nAll sessions completed. Take a longer break!');
         rl.close();
         process.exit(0);
